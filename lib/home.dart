@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'game.dart';
 
@@ -44,6 +45,17 @@ class _HomePageState extends State<HomePage> {
             },
               child: Text(
                 "Play",
+              ),
+            ),
+            FlatButton(
+              color: Colors.orange,
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                int high_score = prefs.getInt("high_score");
+                await prefs.setInt('high_score', high_score == null ? 1 : high_score + 1);
+              },
+              child: Text(
+                "Increment high score",
               ),
             ),
             FlatButton(
