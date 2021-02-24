@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Image.network('https://upload.wikimedia.org/wikipedia/commons/8/8a/2048_logo.png'),
             FlatButton(
               color: Colors.orange,
               onPressed: () {
@@ -45,17 +46,6 @@ class _HomePageState extends State<HomePage> {
             },
               child: Text(
                 "Play",
-              ),
-            ),
-            FlatButton(
-              color: Colors.orange,
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                int high_score = prefs.getInt("high_score");
-                await prefs.setInt('high_score', high_score == null ? 1 : high_score + 1);
-              },
-              child: Text(
-                "Increment high score",
               ),
             ),
             FlatButton(

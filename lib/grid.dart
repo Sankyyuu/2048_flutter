@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Point {
   int x;
@@ -112,7 +113,7 @@ List<List<int>> moveEverything(List<List<int>> grid, int direction) {
   return grid;
 }
 
-List<List<int>> checkHorizontal(List<List<int>> grid, int direction) {
+List<List<int>> checkHorizontal(List<List<int>> grid, int direction, Function incrScore) {
   // 0 Left 1 Right
   grid = moveEverything(grid, direction);
   if (direction == 0) {
@@ -122,6 +123,7 @@ List<List<int>> checkHorizontal(List<List<int>> grid, int direction) {
         if (j != 3) {
           if (grid[i][j] == grid[i][j + 1]) {
             grid[i][j] += grid[i][j + 1];
+            incrScore(grid[i][j]);
             grid[i][j + 1] = 0;
           }
         }
@@ -134,6 +136,7 @@ List<List<int>> checkHorizontal(List<List<int>> grid, int direction) {
         if (j != 0) {
           if (grid[i][j] == grid[i][j - 1]) {
             grid[i][j] += grid[i][j - 1];
+            incrScore(grid[i][j]);
             grid[i][j - 1] = 0;
           }
         }
@@ -146,6 +149,7 @@ List<List<int>> checkHorizontal(List<List<int>> grid, int direction) {
         if (j != 3) {
           if (grid[j][i] == grid[j + 1][i] && grid[j][i] != 0) {
             grid[j][i] += grid[j + 1][i];
+            incrScore(grid[j][i]);
             grid[j + 1][i] = 0;
           }
         }
@@ -158,6 +162,7 @@ List<List<int>> checkHorizontal(List<List<int>> grid, int direction) {
         if (j != 0) {
           if (grid[j][i] == grid[j - 1][i] && grid[j][i] != 0) {
             grid[j][i] += grid[j - 1][i];
+            incrScore(grid[j][i]);
             grid[j - 1][i] = 0;
           }
         }
@@ -195,4 +200,13 @@ bool checkGameWon(List<List<int>> grid) {
     }
   }
   return false;
+}
+
+List<List<int>> copyGrid(List<List<int>> grid) {
+  List<List<int>> newGrid = [];
+  for (int i = 0; i < 4; i++) {
+    List<int> newList = List.from(grid[i]);
+    newGrid.add(newList);
+  }
+  return newGrid;
 }

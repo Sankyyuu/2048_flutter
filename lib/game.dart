@@ -17,11 +17,13 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
 
   List<List<int>> grid = [];
+  List<List<int>> saveGrid = [];
   int score = 0;
   Future<int> highScore;
   SharedPreferences sharedPreferences;
   bool isGameOver = false;
   bool isGameWon = false;
+  bool isResetAvailable = false;
 
   @override
   void initState() {
@@ -41,6 +43,11 @@ class _GamePageState extends State<GamePage> {
     return score;
   }
 
+  void setHighScore() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setInt("high_score", score);
+  }
+
   List<Widget> getTilesFromGrid (double width, double height) {
     List<Widget> grids = [];
     for (int i = 0; i < 4; i++) {
@@ -58,7 +65,7 @@ class _GamePageState extends State<GamePage> {
         } else if (num == 8) {
           number = "${num}";
           color = Colors.red;
-        } else if (num > 8 && num < 64) {
+        } else if (num > 8 && num < 65) {
           number = "${num}";
           color = Colors.purple;
           size = 41;
@@ -79,6 +86,10 @@ class _GamePageState extends State<GamePage> {
       }
     }
     return grids;
+  }
+
+  void incrScore(int newScore) {
+    this.score += newScore;
   }
 
   @override
@@ -177,7 +188,7 @@ class _GamePageState extends State<GamePage> {
                     ],
                   ),
                 )
-              )
+              ),
           ]),
           SizedBox(height: 10,),
           // GRID
@@ -201,27 +212,41 @@ class _GamePageState extends State<GamePage> {
                         onVerticalDragEnd: (DragEndDetails details) {
                           setState(() {
                             if (details.primaryVelocity > 0) {
-                              grid = checkHorizontal(grid, 3);
+                              saveGrid = copyGrid(grid);
+                              isResetAvailable = true;
+                              grid = checkHorizontal(grid, 3, incrScore);
                               grid = addRandomNumber(grid);
                             } else if (details.primaryVelocity < 0) {
-                              grid = checkHorizontal(grid, 2);
+                              saveGrid = copyGrid(grid);
+                              isResetAvailable = true;
+                              grid = checkHorizontal(grid, 2, incrScore);
                               grid = addRandomNumber(grid);
                             }
                             isGameOver = checkGameOver(grid);
                             isGameWon = checkGameWon(grid);
+                            if (isGameOver == true || isGameWon == true) {
+                              setHighScore();
+                            }
                           });
                         },
                         onHorizontalDragEnd: (details) {
                           setState(() {
                             if (details.primaryVelocity > 0) {
-                              grid = checkHorizontal(grid, 1);
+                              saveGrid = copyGrid(grid);
+                              isResetAvailable = true;
+                              grid = checkHorizontal(grid, 1, incrScore);
                               grid = addRandomNumber(grid);
                             } else if (details.primaryVelocity < 0) {
-                              grid = checkHorizontal(grid, 0);
+                              saveGrid = copyGrid(grid);
+                              isResetAvailable = true;
+                              grid = checkHorizontal(grid, 0, incrScore);
                               grid = addRandomNumber(grid);
                             }
                             isGameOver = checkGameOver(grid);
                             isGameWon = checkGameWon(grid);
+                            if (isGameOver == true || isGameWon == true) {
+                              setHighScore();
+                            }
                           });
                         },
                       ),
@@ -262,46 +287,25 @@ class _GamePageState extends State<GamePage> {
               ),
             ),
             SizedBox(height: 20,),
-            Row(
-              children: [
-                FlatButton(
-                  color: Colors.orange,
+            Center(child: 
+            Ink(
+                  
+                decoration: ShapeDecoration(
+                  color: (isResetAvailable == true) ? Colors.green : Colors.grey,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.refresh),
+                  color: Colors.white,
                   onPressed: () {
                     setState(() {
-                      grid = addNumber(grid, 2048);
+                      grid = copyGrid(saveGrid);
+                      isResetAvailable = false;
                     });
                   },
-                  child: Text(
-                    "Win game",
-                  ),
                 ),
-                SizedBox(width: 20,),
-                FlatButton(
-                  color: Colors.orange,
-                  onPressed: () {
-                    setState(() {
-                      grid = addNumber(grid, 512);
-                    });
-                  },
-                  child: Text(
-                    "Add 3 digit number",
-                  ),
-                ),
-                SizedBox(width: 20,),
-                FlatButton(
-                  color: Colors.orange,
-                  onPressed: () {
-                    setState(() {
-                      grid = addRandomNumber(grid);
-                    });
-                  },
-                  child: Text(
-                    "Add number",
-                  ),
-                ),
-              ],
-            ),
-            
+              ),
+            )
           ],
         ),
       ),
